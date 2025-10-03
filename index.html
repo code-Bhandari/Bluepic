@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bluepic - AI Image Generation from Text Prompts">
+    <title>Bluepic - AI Image Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Animated background with twinkling stars -->
+    <div class="background-gradient"></div>
+    <div class="stars" aria-hidden="true"></div>
+
+    <main class="container">
+        <!-- Glass panel card -->
+        <div class="glass-panel">
+            <!-- Header -->
+            <header class="app-header">
+                <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="15" cy="15" r="3" fill="currentColor"/>
+                    <path d="M4 28 L15 18 L25 26 L36 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h1>Bluepic</h1>
+            </header>
+
+            <!-- Prompt input section -->
+            <section class="prompt-section">
+                <label for="prompt-input" class="visually-hidden">Image description prompt</label>
+                <textarea 
+                    id="prompt-input" 
+                    class="prompt-input" 
+                    placeholder="Describe the image you want..."
+                    rows="4"
+                    aria-label="Enter your image description"
+                ></textarea>
+                
+                <!-- Prompt helper suggestions -->
+                <div class="prompt-helper">
+                    <button type="button" class="helper-btn" data-prompt="Photorealistic portrait of a young woman smiling, golden hour, shallow depth of field, 85mm">
+                        📸 Portrait
+                    </button>
+                    <button type="button" class="helper-btn" data-prompt="Cyberpunk city street, neon signs, rainy, cinematic wide shot">
+                        🌃 Cyberpunk
+                    </button>
+                    <button type="button" class="helper-btn" data-prompt="Watercolor painting of a coastal lighthouse at sunset">
+                        🎨 Watercolor
+                    </button>
+                    <button type="button" class="helper-btn" data-prompt="Minimal flat icon set: food, travel, music — pastel palette">
+                        🎯 Minimal
+                    </button>
+                    <button type="button" class="helper-btn" data-prompt="A fantasy dragon curled around a crystalline mountain, volumetric light">
+                        🐉 Fantasy
+                    </button>
+                </div>
+            </section>
+
+            <!-- Style presets -->
+            <section class="style-section">
+                <h2 class="section-title">Style Preset</h2>
+                <div class="style-presets">
+                    <button type="button" class="preset-pill" data-style="photorealistic">Photorealistic</button>
+                    <button type="button" class="preset-pill" data-style="illustration">Illustration</button>
+                    <button type="button" class="preset-pill" data-style="cyberpunk">Cyberpunk</button>
+                    <button type="button" class="preset-pill" data-style="anime">Anime</button>
+                    <button type="button" class="preset-pill" data-style="minimal">Minimal</button>
+                    <button type="button" class="preset-pill" data-style="watercolor">Watercolor</button>
+                </div>
+            </section>
+
+            <!-- Configuration controls -->
+            <section class="controls-section">
+                <div class="control-group">
+                    <label for="aspect-ratio">Aspect Ratio</label>
+                    <select id="aspect-ratio" class="control-select">
+                        <option value="1:1">1:1 (Square)</option>
+                        <option value="3:2">3:2 (Landscape)</option>
+                        <option value="16:9" selected>16:9 (Wide)</option>
+                        <option value="2:3">2:3 (Portrait)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="image-size">Image Size</label>
+                    <select id="image-size" class="control-select">
+                        <option value="small">Small (512px)</option>
+                        <option value="medium" selected>Medium (1024px)</option>
+                        <option value="large">Large (1536px)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Advanced settings toggle -->
+            <button type="button" class="advanced-toggle" id="advanced-toggle" aria-expanded="false">
+                <span>⚙️ Advanced Settings</span>
+                <span class="toggle-icon">▼</span>
+            </button>
+
+            <div class="advanced-settings" id="advanced-settings" hidden>
+                <div class="control-group">
+                    <label for="seed">Seed (random if empty)</label>
+                    <input type="number" id="seed" class="control-input" placeholder="e.g., 12345">
+                </div>
+
+                <div class="control-group">
+                    <label for="guidance">Guidance Scale (CFG)</label>
+                    <input type="range" id="guidance" class="control-range" min="0" max="20" value="7.5" step="0.5">
+                    <span class="range-value" id="guidance-value">7.5</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="steps">Steps</label>
+                    <input type="range" id="steps" class="control-range" min="1" max="150" value="50">
+                    <span class="range-value" id="steps-value">50</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="negative-prompt">Negative Prompt</label>
+                    <textarea id="negative-prompt" class="control-textarea" rows="2" placeholder="Things to avoid in the image..."></textarea>
+                </div>
+            </div>
+
+            <!-- Generate button -->
+            <button type="button" class="generate-btn" id="generate-btn">
+                <span class="btn-text">Generate Image</span>
+                <span class="btn-loader" hidden>
+                    <span class="spinner"></span>
+                    <span>Generating...</span>
+                </span>
+            </button>
+
+            <!-- Progress indicator -->
+            <div class="progress-container" id="progress-container" hidden>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <p class="progress-text" id="progress-text">Preparing...</p>
+            </div>
+
+            <!-- Error message -->
+            <div class="error-toast" id="error-toast" hidden role="alert">
+                <p id="error-message"></p>
+                <button type="button" class="retry-btn" id="retry-btn">Retry</button>
+            </div>
+
+            <!-- Image preview -->
+            <section class="preview-section" id="preview-section" hidden>
+                <h2 class="section-title">Generated Image</h2>
+                <div class="preview-container">
+                    <img id="preview-image" class="preview-image" alt="Generated image" />
+                </div>
+                <div class="preview-meta" id="preview-meta"></div>
+                <div class="preview-actions">
+                    <button type="button" class="action-btn primary" id="download-btn">
+                        📥 Download
+                    </button>
+                    <button type="button" class="action-btn secondary" id="regenerate-btn">
+                        🔄 Regenerate
+                    </button>
+                    <button type="button" class="action-btn secondary" id="new-prompt-btn">
+                        ✨ New Prompt
+                    </button>
+                </div>
+            </section>
+
+            <!-- Gallery -->
+            <section class="gallery-section" id="gallery-section">
+                <h2 class="section-title">Recent Generations</h2>
+                <div class="gallery-grid" id="gallery-grid"></div>
+            </section>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
